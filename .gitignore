@@ -5,3 +5,7 @@ allure-report/
 test-results/
 .env
 *.env.local
+blob-report/
+playwright/.cache/
+.DS_Store
+thumbs.db
