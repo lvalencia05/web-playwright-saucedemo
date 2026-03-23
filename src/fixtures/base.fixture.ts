@@ -1,5 +1,4 @@
 import { test as base } from '@playwright/test';
-import { LoginPage }     from '../pages/LoginPage';
 import { InventoryPage } from '../pages/InventoryPage';
 import { USERS }          from '../data/users';
 
@@ -12,11 +11,17 @@ type AppFixtures = {
  * Uso: import { test } from '../../src/fixtures/base.fixture'
  */
 export const test = base.extend<AppFixtures>({
-  inventoryPage: async ({ page }, use) => {
-    const loginPage = new LoginPage(page);
-    await loginPage.navigate();
-    await loginPage.login(USERS.standard.username, USERS.standard.password);
-    await page.waitForURL('**/inventory.html');
+  inventoryPage: async ({ page, context }, use) => {
+    // Bypass de UI Login mediante inyección de estado (Cookies)
+    // Esto simula una autenticación vía API y acelera drásticamente los tests.
+    await context.addCookies([{
+      name: 'session-username',
+      value: USERS.standard.username,
+      domain: 'www.saucedemo.com',
+      path: '/',
+    }]);
+    
+    await page.goto('/inventory.html');
     await use(new InventoryPage(page));
   },
 });

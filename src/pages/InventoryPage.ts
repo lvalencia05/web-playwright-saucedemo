@@ -34,12 +34,25 @@ export class InventoryPage extends BasePage {
       .click();
   }
 
+  /** Remueve un producto del carrito por nombre desde el inventario */
+  async removeProductFromCart(productName: string): Promise<void> {
+    const product = this.page
+      .locator('.inventory_item')
+      .filter({ hasText: productName });
+    await product
+      .locator('button[data-test*="remove"]')
+      .click();
+  }
+
   async sortProducts(option: SortOption): Promise<void> {
     await this.sortDropdown.selectOption(option);
   }
 
   async getCartItemCount(): Promise<string> {
-    return (await this.cartBadge.textContent()) ?? '0';
+    if (await this.cartBadge.isVisible()) {
+      return (await this.cartBadge.textContent()) ?? '0';
+    }
+    return '0';
   }
 
   async goToCart(): Promise<void> {
@@ -47,13 +60,8 @@ export class InventoryPage extends BasePage {
   }
 
   async getProductPrices(): Promise<number[]> {
-    const priceLocators = this.page.locator('.inventory_item_price');
-    const count = await priceLocators.count();
-    const prices: number[] = [];
-    for (let i = 0; i < count; i++) {
-      const text = (await priceLocators.nth(i).textContent()) ?? '$0';
-      prices.push(parseFloat(text.replace('$', '')));
-    }
-    return prices;
+    // Optimización: Obtener todos los textos en una sola llamada al driver
+    const priceTexts = await this.page.locator('.inventory_item_price').allTextContents();
+    return priceTexts.map(text => parseFloat(text.replace('$', '')));
   }
 }

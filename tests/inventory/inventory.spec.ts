@@ -45,6 +45,14 @@ test.describe('Inventory — Catálogo de productos', () => {
     expect(await inventoryPage.getCartItemCount()).toBe('3');
   });
 
+  test('Debe permitir agregar y luego eliminar un producto', async ({ inventoryPage }) => {
+    await inventoryPage.addProductToCart(PRODUCTS.backpack);
+    expect(await inventoryPage.getCartItemCount()).toBe('1');
+
+    await inventoryPage.removeProductFromCart(PRODUCTS.backpack);
+    expect(await inventoryPage.getCartItemCount()).toBe('0'); // O vacío, dependiendo de la implementación
+  });
+
   test('Debe navegar al carrito al hacer click en el ícono', async ({ inventoryPage, page }) => {
     await inventoryPage.goToCart();
 

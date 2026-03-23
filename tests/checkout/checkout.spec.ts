@@ -34,4 +34,30 @@ test.describe('Checkout — Flujo E2E', () => {
     expect(await confirmation.getConfirmationMessage())
       .toContain('Thank you for your order!');
   });
+
+  test.describe('Validaciones de Formulario', () => {
+    test('No debe permitir continuar sin el nombre', async ({ page, inventoryPage }) => {
+      const inventory = inventoryPage;
+      const cart = new CartPage(page);
+      const checkout = new CheckoutPage(page);
+
+      // Precondición: Tener items y llegar al checkout
+      await inventory.addProductToCart('Sauce Labs Backpack');
+      await inventory.goToCart();
+      await cart.proceedToCheckout();
+
+      // Acción: Intentar continuar vacio
+      await checkout.continueCheckout();
+
+      // Validación: Error de Nombre requerido
+      expect(await checkout.getErrorMessage()).toContain('Error: First Name is required');
+
+      // Acción: Llenar nombre y reintentar (Validar siguiente error)
+      await checkout.fillCustomerInfo({ ...CUSTOMER_INFO, lastName: '' }); // Borramos apellido a propósito
+      await checkout.continueCheckout();
+      
+      // Validación: Error de Apellido requerido
+      expect(await checkout.getErrorMessage()).toContain('Error: Last Name is required');
+    });
+  });
 });

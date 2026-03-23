@@ -9,6 +9,7 @@ export class CheckoutPage extends BasePage {
   private readonly continueButton:  Locator;
   private readonly finishButton:    Locator;
   private readonly totalLabel:      Locator;
+  private readonly errorMessage:    Locator;
 
   constructor(page: Page) {
     super(page);
@@ -18,6 +19,7 @@ export class CheckoutPage extends BasePage {
     this.continueButton = page.locator('[data-test="continue"]');
     this.finishButton   = page.locator('[data-test="finish"]');
     this.totalLabel     = page.locator('.summary_total_label');
+    this.errorMessage   = page.locator('[data-test="error"]');
   }
 
   protected getUrl(): string {
@@ -40,5 +42,9 @@ export class CheckoutPage extends BasePage {
 
   async getOrderTotal(): Promise<string> {
     return (await this.totalLabel.textContent()) ?? '';
+  }
+
+  async getErrorMessage(): Promise<string> {
+    return (await this.errorMessage.textContent()) ?? '';
   }
 }
