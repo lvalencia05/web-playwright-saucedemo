@@ -10,6 +10,8 @@ export class CheckoutPage extends BasePage {
   private readonly finishButton:    Locator;
   private readonly totalLabel:      Locator;
   private readonly errorMessage:    Locator;
+  private readonly subtotalLabel:   Locator;
+  private readonly taxLabel:        Locator;
 
   constructor(page: Page) {
     super(page);
@@ -20,6 +22,8 @@ export class CheckoutPage extends BasePage {
     this.finishButton   = page.locator('[data-test="finish"]');
     this.totalLabel     = page.locator('.summary_total_label');
     this.errorMessage   = page.locator('[data-test="error"]');
+    this.subtotalLabel  = page.locator('.summary_subtotal_label');
+    this.taxLabel       = page.locator('.summary_tax_label');
   }
 
   protected getUrl(): string {
@@ -47,4 +51,13 @@ export class CheckoutPage extends BasePage {
   async getErrorMessage(): Promise<string> {
     return (await this.errorMessage.textContent()) ?? '';
   }
+
+  async getSubtotal(): Promise<string> {
+    return (await this.subtotalLabel.textContent()) ?? '';
+  }
+
+  async getTax(): Promise<string> {
+    return (await this.taxLabel.textContent()) ?? '';
+  }
+
 }

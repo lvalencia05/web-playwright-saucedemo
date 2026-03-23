@@ -24,6 +24,9 @@ export default defineConfig({
     video: 'on-first-retry',
     trace: 'on-first-retry',
     actionTimeout: 10_000,
+    
+    // Mapear getByTestId al atributo usado por los devs (SauceDemo usa data-test)
+    testIdAttribute: 'data-test',
   },
 
   projects: [

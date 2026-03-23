@@ -7,6 +7,8 @@ export class InventoryPage extends BasePage {
   private readonly sortDropdown:   Locator;
   private readonly cartBadge:      Locator;
   private readonly cartIcon:       Locator;
+  private readonly menuButton:     Locator;
+  private readonly logoutLink:     Locator;
 
   constructor(page: Page) {
     super(page);
@@ -14,6 +16,8 @@ export class InventoryPage extends BasePage {
     this.sortDropdown = page.locator('[data-test="product-sort-container"]');
     this.cartBadge    = page.locator('.shopping_cart_badge');
     this.cartIcon     = page.locator('.shopping_cart_link');
+    this.menuButton   = page.locator('#react-burger-menu-btn');
+    this.logoutLink   = page.locator('#logout_sidebar_link');
   }
 
   protected getUrl(): string {
@@ -63,5 +67,11 @@ export class InventoryPage extends BasePage {
     // Optimización: Obtener todos los textos en una sola llamada al driver
     const priceTexts = await this.page.locator('.inventory_item_price').allTextContents();
     return priceTexts.map(text => parseFloat(text.replace('$', '')));
+  }
+
+  async logout(): Promise<void> {
+    await this.menuButton.click();
+    // Esperamos a que el link sea visible porque el menú tiene animación
+    await this.logoutLink.click();
   }
 }
