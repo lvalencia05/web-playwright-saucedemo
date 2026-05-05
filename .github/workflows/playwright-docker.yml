@@ -14,6 +14,8 @@ jobs:
     permissions:
       contents: write
       pages: write
+      actions: write
+      checks: write
       id-token: write
 
     steps:
@@ -52,10 +54,17 @@ jobs:
           path: allure-results/
 
       - name: Generate and Publish Allure Report
-        uses: allure-framework/allure-github-action@v2.9.0
+        uses: simple-elf/allure-report-action@v1.9
         if: always() # Genera el reporte Allure incluso si las pruebas fallan
         with:
           allure_results: allure-results
-          allure_report: allure-report
           allure_history: allure-history
-          gh_pages: true # Publica el reporte en GitHub Pages
+          keep_reports: 20
+
+      - name: Deploy Allure Report to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        if: always()
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: allure-history
+          publish_branch: gh-pages
