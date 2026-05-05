@@ -10,6 +10,11 @@ jobs:
   playwright-docker-tests:
     timeout-minutes: 15 # Establece un tiempo límite para el trabajo
     runs-on: ubuntu-latest
+    # Permisos necesarios para publicar el reporte en GitHub Pages
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
 
     steps:
       - name: Checkout code
@@ -47,10 +52,10 @@ jobs:
           path: allure-results/
 
       - name: Generate and Publish Allure Report
-        uses: allure-report/github-action@v2.0.0
+        uses: allure-framework/allure-github-action@v2.9.0
         if: always() # Genera el reporte Allure incluso si las pruebas fallan
         with:
-          report_name: Playwright Test Report
           allure_results: allure-results
+          allure_report: allure-report
+          allure_history: allure-history
           gh_pages: true # Publica el reporte en GitHub Pages
-          # gh_pages_branch: gh-pages # Descomenta si quieres especificar una rama diferente
