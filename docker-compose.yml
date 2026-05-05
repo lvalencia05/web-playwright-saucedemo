@@ -1,0 +1,32 @@
+services:
+  # Servicio para ejecutar las pruebas
+  playwright-tests:
+    build: .
+    image: saucedemo-tests:latest
+    container_name: playwright-tests
+    env_file: .env
+    environment:
+      - BASE_URL=${BASE_URL:-https://www.saucedemo.com}
+      - STANDARD_USER=${STANDARD_USER}
+      - PASSWORD=${PASSWORD}
+    volumes:
+      # Sincroniza los resultados generados en el contenedor con tu máquina local
+      - ./allure-results:/app/allure-results
+      - ./playwright-report:/app/playwright-report
+      - ./test-results:/app/test-results
+
+  # Servicio para visualizar los reportes de Allure
+  allure:
+    image: frankescobar/allure-docker-service
+    container_name: allure-report-server
+    ports:
+      - "5050:5050" # Acceso vía http://localhost:5050
+    environment:
+      - CHECK_RESULTS_EVERY_SECONDS=15
+      - KEEP_HISTORY=1
+    volumes:
+      # El servicio lee los resultados que deja el contenedor de pruebas
+      - ./allure-results:/allure-results
+    depends_on:
+      - playwright-tests
+    restart: always

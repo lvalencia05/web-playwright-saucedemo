@@ -1,0 +1,56 @@
+name: Playwright Docker Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  playwright-docker-tests:
+    timeout-minutes: 15 # Establece un tiempo límite para el trabajo
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Create .env file for Docker Compose
+        # GitHub Actions no expone automáticamente secrets a docker-compose.
+        # Creamos un .env temporal para que docker-compose pueda leerlos.
+        run: |
+          echo "STANDARD_USER=${{ secrets.STANDARD_USER }}" > .env
+          echo "PASSWORD=${{ secrets.PASSWORD }}" >> .env
+          # Puedes usar una variable de GitHub Actions o un valor por defecto para BASE_URL
+          echo "BASE_URL=${{ vars.BASE_URL || 'https://www.saucedemo.com' }}" >> .env
+
+      - name: Build and Run Playwright Tests with Docker Compose
+        # Usamos --exit-code-from para que el paso falle si las pruebas de Playwright fallan.
+        # El servicio 'allure' no se levanta aquí, solo el de pruebas.
+        run: docker compose up --build playwright-tests --exit-code-from playwright-tests
+
+      - name: Upload Playwright HTML Report
+        uses: actions/upload-artifact@v4
+        if: always() # Sube el reporte incluso si las pruebas fallan
+        with:
+          name: playwright-html-report
+          path: playwright-report/
+
+      - name: Upload Allure Results
+        uses: actions/upload-artifact@v4
+        if: always() # Sube los resultados de Allure incluso si las pruebas fallan
+        with:
+          name: allure-results
+          path: allure-results/
+
+      - name: Generate and Publish Allure Report
+        uses: allure-report/github-action@v2.0.0
+        if: always() # Genera el reporte Allure incluso si las pruebas fallan
+        with:
+          report_name: Playwright Test Report
+          allure_results: allure-results
+          gh_pages: true # Publica el reporte en GitHub Pages
+          # gh_pages_branch: gh-pages # Descomenta si quieres especificar una rama diferente
